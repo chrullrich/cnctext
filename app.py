@@ -1,0 +1,166 @@
+#!/usr/bin/env python
+
+from math import ceil
+
+from numpy import array
+from .fontparser import parse
+
+
+class Transformation:
+    """
+    Coordinate transformation matrix.
+
+    With no arguments, it is initially an identity transformation:
+
+    >>> t = Transformation()
+    >>> t
+    <Transformation: [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]>
+
+    It can be called to transform a point (x, y):
+
+    >>> pt = (3, 4)
+    >>> t(pt)
+    (3.0, 4.0)
+
+    Scaling and translation vectors can be set later:
+
+    >>> Transformation().scale(2, 0.5)
+    <Transformation: [[2.0, 0.0, 0.0], [0.0, 0.5, 0.0], [0.0, 0.0, 1.0]]>
+
+    >>> Transformation().translate(3, 5)
+    <Transformation: [[1.0, 0.0, 3.0], [0.0, 1.0, 5.0], [0.0, 0.0, 1.0]]>
+
+    They can also be set using arguments during construction:
+
+    >>> t = Transformation((2, 0.5), (3, 5))
+    >>> t
+    <Transformation: [[2.0, 0.0, 3.0], [0.0, 0.5, 5.0], [0.0, 0.0, 1.0]]>
+
+    Transformation is done as a single step, i.e. translation
+    is effectively applied after scaling:
+
+    >>> t((3, 4))
+    (9.0, 7.0)
+    """
+    def __init__(self, scale=None, translate=None):
+        """
+        :param scale: Scaling vector (x, y)
+        :param translate: Translation vector (x, y)
+
+        >>> Transformation((2, 3), (4, 5))
+        <Transformation: [[2.0, 0.0, 4.0], [0.0, 3.0, 5.0], [0.0, 0.0, 1.0]]>
+        """
+        self.matrix = array([[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]])
+
+        # Assign directly; delegating to scale()/translate()
+        # would scale the translation vector.
+        if (scale):
+            self.matrix[0][0] = scale[0]
+            self.matrix[1][1] = scale[1]
+        if (translate):
+            self.matrix[0][2] = translate[0]
+            self.matrix[1][2] = translate[1]
+
+    def scale(self, x, y):
+        """
+        Scales the scaling vector.
+
+        :param x: Scaling factor, x direction
+        :param y:  Scaling factor, y direction
+        :return: Modified transformation
+
+        >>> Transformation().scale(2, 3)
+        <Transformation: [[2.0, 0.0, 0.0], [0.0, 3.0, 0.0], [0.0, 0.0, 1.0]]>
+
+        >>> Transformation().scale(2, 3).scale(2, 2)
+        <Transformation: [[4.0, 0.0, 0.0], [0.0, 6.0, 0.0], [0.0, 0.0, 1.0]]>
+        """
+        self.matrix = self.matrix @ array([[x, 0, 0], [0, y, 0], [0, 0, 1]])
+        return self
+
+    def translate(self, x, y):
+        """
+        Modifies the translation vector.
+
+        :param x: Translation offset, x direction
+        :param y: Translation offset, y direction
+        :return: Modified transformation
+
+        >>> Transformation().translate(1, 2)
+        <Transformation: [[1.0, 0.0, 1.0], [0.0, 1.0, 2.0], [0.0, 0.0, 1.0]]>
+
+        >>> Transformation().translate(1, 2). translate(-3, -4)
+        <Transformation: [[1.0, 0.0, -2.0], [0.0, 1.0, -2.0], [0.0, 0.0, 1.0]]>
+        """
+        self.matrix = self.matrix @ array([[1, 0, x], [0, 1, y], [0, 0, 1]])
+        return self
+
+    def __call__(self, pt):
+        """
+        Transforms a point (x, y).
+
+        :param pt: The point to transform, as a sequence (x, y)
+        :return: The transformed point, as a tuple (x, y)
+
+        >>> t = Transformation((2, 3), (1, 2))
+        >>> t((4,5))
+        (9.0, 17.0)
+        """
+        return tuple((self.matrix @ (array([*pt, 1]))).tolist()[:2])
+
+    def __str__(self):
+        """
+        >>> Transformation()
+        <Transformation: [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]>
+        """
+        return f"<Transformation: {self.matrix.tolist()}>"
+
+    def __repr__(self):
+        return str(self)
+
+class Character:
+    def __init__(self, cellwidth, strokes):
+        self.cellwidth = cellwidth
+        self.strokes = strokes
+
+    def scaled(self, x, y):
+        scaledwidth = self.cellwidth * x
+
+        xfrm = Transformation((x, y))
+        scaledstrokes = [[xfrm(pt) for pt in s] for s in self.strokes]
+
+        return scaledwidth, scaledstrokes
+
+
+class Font:
+    def __init__(self):
+        self.characters = {}
+
+        # Height above the baseline. We assume that descenders do not go down too far.
+        self.height = 0
+
+    def __getitem__(self, code):
+        return self.characters.get(code)
+
+    @classmethod
+    def load(cls, fontfile):
+        inst = cls()
+        chardata = parse(fontfile)
+        for code, width, strokes in chardata:
+            inst.characters[code] = Character(width, strokes)
+            inst.height = max(inst.height, max(p[1] for s in strokes for p in s))
+
+        # Add synthetic space if needed; two-thirds the width of the
+        # narrowest character in the font.
+        if (not 32 in inst.characters):
+            minwidth = min([c.cellwidth for c in inst.characters.values()])
+            inst.characters[32] = Character(minwidth * 2.0 / 3.0, [])
+
+        return inst
+
+
+class Line:
+    def __init__(self, font, text):
+        self.font = font
+        self.codes = list(text.encode("us-ascii"))
+        self.chars = [font[x] for x in self.codes]
