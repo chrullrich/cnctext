@@ -140,10 +140,25 @@ class Font:
         self.height = 0
 
     def __getitem__(self, code):
-        return self.characters.get(code)
+        return self.characters[code]
+
+    def __contains__(self, code):
+        return code in self.characters
 
     @classmethod
     def load(cls, fontfile):
+        """
+        Loads a font from a file.
+
+        >>> f = Font.load("cnctext/fonts/test.chr")
+        >>> f[0x2b].cellwidth
+        26
+        >>> f[0x2b].strokes
+        [[(13, 18), (13, 0)], [(4, 9), (22, 9)]]
+
+        :param fontfile: Path to font definition
+        :returns: Font.
+        """
         inst = cls()
         chardata = parse(fontfile)
         for code, width, strokes in chardata:

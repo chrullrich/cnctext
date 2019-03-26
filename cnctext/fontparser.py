@@ -2,6 +2,9 @@ from arpeggio.cleanpeg import ParserPython, OneOrMore, Optional, ZeroOrMore, EOF
 from arpeggio import PTNodeVisitor, visit_parse_tree
 
 
+def comment():
+    return _(r"#.*$")
+
 def char_code():
     return _(r"[0-9A-F]{2}")
 
@@ -45,7 +48,7 @@ class FontVisitor(PTNodeVisitor):
 
 
 def parse(fontfile):
-    parser = ParserPython(font)
+    parser = ParserPython(font, comment)
     with open(fontfile, "rt") as f:
         fontdata = f.read()
         tree = parser.parse(fontdata)
