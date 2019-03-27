@@ -1,0 +1,65 @@
+Situation
+=========
+
+- Total available width: 22.5 mm
+- Total available height: 6.5 mm
+- Font size (x height): 2.8 mm
+- Inter-line spacing: 0.5 mm (leaves 0.4 mm for line 2 descenders)
+  - Must be validated once scaled characters available
+
+
+Line Format
+===========
+
+A line consists of text, arranged in one or two columns. The first
+column is left-aligned in the output. If a second column is present,
+it is right-aligned.
+
+Because the HT character is already used for another purpose (as
+column separator in a text input file that has one label per physical
+line and the two label lines in HT-separated columns), the intra-line
+column separator is any sequence of more than one consecutive SP.
+(Alternatively, US (0x1f) could be used, as it is attractively close
+to SP in the code table.)
+
+
+Procedure
+=========
+
+- Determine:
+
+  - Total width of characters in line (excluding a column gap)
+  - Presence of column gap
+
+- If column gap is present, reduce available width for line by 2 mm.
+
+- Calculate horizontal scaling factor (sx = available/total) required
+  to fit characters into available width.
+
+- Calculate vertical scaling factor (sy = available/font size)
+  required to fit line into available height.
+
+- If (sx > 1.15sy) [characters more than 15 % narrower than designed],
+  abort with error.
+
+- If (sx < 0.85sy) [characters more than 15 % wider than designed],
+  set sx := 0.85sy [do not stretch to maximum for legibility]
+  
+- Recalculate column gap (cg = 22.5mm - (total character width * sx)).
+  [Will be wider than 2mm if (sx < 0.85sy before previous step, 2mm
+   otherwise.]
+
+- Create galley:
+
+  (Place scaled/translated characters in list. Transformation can
+  scale and translate at once, but how to arrange the operation so
+  that per-character x offset is available? Use translation only for y
+  and do the x later?)
+
+  (Place characters to left of column gap, then skip column gap and
+  continue with second column; the result will be right aligned even
+  though placed from the left.)
+
+
+- 
+- 
