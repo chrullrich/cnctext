@@ -89,7 +89,7 @@ class Transformation:
         >>> Transformation().translate(1, 2)
         <Transformation: [[1.0, 0.0, 1.0], [0.0, 1.0, 2.0], [0.0, 0.0, 1.0]]>
 
-        >>> Transformation().translate(1, 2). translate(-3, -4)
+        >>> Transformation().translate(1, 2).translate(-3, -4)
         <Transformation: [[1.0, 0.0, -2.0], [0.0, 1.0, -2.0], [0.0, 0.0, 1.0]]>
         """
         self.matrix = self.matrix @ array([[1, 0, x], [0, 1, y], [0, 0, 1]])
@@ -118,12 +118,25 @@ class Transformation:
     def __repr__(self):
         return str(self)
 
+
 class Character:
     def __init__(self, cellwidth, strokes):
         self.cellwidth = cellwidth
         self.strokes = strokes
 
     def scaled(self, x, y):
+        """
+        Returns the cell width and strokes of the character,
+        scaled by the given factors.
+
+        >>> c = Character(20, [[(0, 0), (10, 10), (20, 0), (0, 0)]])
+        >>> c.scaled(0.5, 0.5)
+        (10.0, [[(0.0, 0.0), (5.0, 5.0), (10.0, 0.0), (0.0, 0.0)]])
+
+        :param x: X component of scaling vector.
+        :param y: Y component of scaling vector.
+        :returns: tuple of (width, strokes)
+        """
         scaledwidth = self.cellwidth * x
 
         xfrm = Transformation((x, y))
