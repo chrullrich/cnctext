@@ -1,9 +1,13 @@
 #!/usr/bin/env python
 
+import re
 from math import ceil
 
 from numpy import array
 from .fontparser import parse
+
+
+GAP_RE = re.compile(r"  +")
 
 
 class Transformation:
@@ -189,6 +193,26 @@ class Font:
 
 class Line:
     def __init__(self, font, text):
+        """
+        >>> f = Font.load("cnctext/fonts/test.chr")
+        >>> l = Line(f, "+++  +++")
+        >>> l.has_gap
+        True
+        >>> l.codes
+        [[43, 43, 43], [43, 43, 43]]
+
+        :param font: Font to be used for this line.
+        :param text: Text of this line.
+        """
         self.font = font
-        self.codes = list(text.encode("us-ascii"))
-        self.chars = [font[x] for x in self.codes]
+
+        self.parts = re.split(GAP_RE, text)
+        if (len(self.parts) > 2):
+            raise ValueError("Line must not have more than one gap")
+
+        self.codes = [list(p.encode("us-ascii")) for p in self.parts]
+        self.chars = [[self.font[x] for x in p] for p in self.codes]
+
+    @property
+    def has_gap(self):
+        return len(self.parts) == 2
