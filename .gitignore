@@ -2,5 +2,6 @@ build
 dist
 venv
 __pycache__
+*.egg-info
 
 .idea/workspace.xml

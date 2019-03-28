@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import itertools
 import re
 from math import ceil
 
@@ -191,7 +192,15 @@ class Font:
         return inst
 
 
+def GeometryError(Exception):
+    def __init__(self, msg):
+        super().__init__(msg)
+
+
 class Line:
+    MIN_GAP_WIDTH = 2.0     # Currently fixed gap width
+    CHAR_HEIGHT = 2.8
+
     def __init__(self, font, text):
         """
         >>> f = Font.load("cnctext/fonts/test.chr")
@@ -204,6 +213,7 @@ class Line:
         :param font: Font to be used for this line.
         :param text: Text of this line.
         """
+        self.gap_width = Line.MIN_GAP_WIDTH
         self.font = font
 
         self.parts = re.split(GAP_RE, text)
@@ -213,6 +223,43 @@ class Line:
         self.codes = [list(p.encode("us-ascii")) for p in self.parts]
         self.chars = [[self.font[x] for x in p] for p in self.codes]
 
-    @property
     def has_gap(self):
         return len(self.parts) == 2
+
+    @property
+    def all_characters(self):
+        return itertools.chain(*self.chars)
+
+    def width(self):
+        return sum((c.cellwidth for c in self.all_characters))
+
+    def scaling(self, size):
+        """
+        Returns the scale factors (x, y) to use for this line.
+
+        :param size: Tuple (x, y) of available space in font size units.
+        """
+        x = size[0]
+        if (self.has_gap()):
+            x -= Line.MIN_GAP_WIDTH
+
+        sx = x / self.width()
+        sy = size[1] / self.font.height
+
+        return (sx, sy)
+
+    def galley(self, sx, sy):
+        result = []
+        x = 0.0
+
+        for p in self.chars:
+            for c in p:
+                cw, cs = c.scaled(sx, sy)
+                result.append((x, cs))
+                x += cw
+
+            if (self.has_gap()):
+                x += Line.MIN_GAP_WIDTH
+
+        return result
+

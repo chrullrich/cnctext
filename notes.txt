@@ -51,6 +51,8 @@ Procedure
 
 - Create galley:
 
+  - 
+
   (Place scaled/translated characters in list. Transformation can
   scale and translate at once, but how to arrange the operation so
   that per-character x offset is available? Use translation only for y
