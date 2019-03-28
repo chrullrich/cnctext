@@ -39,29 +39,35 @@ Procedure
 - Calculate vertical scaling factor (sy = available/font size)
   required to fit line into available height.
 
-- If (sx > 1.15sy) [characters more than 15 % narrower than designed],
-  abort with error.
-
-- If (sx < 0.85sy) [characters more than 15 % wider than designed],
-  set sx := 0.85sy [do not stretch to maximum for legibility]
-  
-- Recalculate column gap (cg = 22.5mm - (total character width * sx)).
-  [Will be wider than 2mm if (sx < 0.85sy before previous step, 2mm
-   otherwise.]
+# - If (sx > 1.15sy) [characters more than 15 % narrower than designed],
+#   abort with error.
+# 
+# - If (sx < 0.85sy) [characters more than 15 % wider than designed],
+#   set sx := 0.85sy [do not stretch to maximum for legibility]
+#   
+# - Recalculate column gap (cg = 22.5mm - (total character width * sx)).
+#   [Will be wider than 2mm if (sx < 0.85sy before previous step, 2mm
+#    otherwise.]
 
 - Create galley:
 
-  - 
+  - Start with empty list
+  - Set x coordinate to 0
 
-  (Place scaled/translated characters in list. Transformation can
-  scale and translate at once, but how to arrange the operation so
-  that per-character x offset is available? Use translation only for y
-  and do the x later?)
+  - For each part of the line (before/after the gap, if present):
+  
+    - For each character:
+    
+      - Scale character per calculated factors
+      - Add x coordinate, strokes to list
+      - Add scaled cell width to x coordinate
 
-  (Place characters to left of column gap, then skip column gap and
-  continue with second column; the result will be right aligned even
-  though placed from the left.)
+    - If gap is present:
+      
+      - Add gap width to x coordinate (leave gap)
+
+  Result is list of (base x, strokes) with strokes' x coordinates
+  based on "base x" and y relative to an implied base line.
+  
 
 
-- 
-- 
