@@ -199,7 +199,6 @@ def GeometryError(Exception):
 
 class Line:
     MIN_GAP_WIDTH = 2.0     # Currently fixed gap width
-    CHAR_HEIGHT = 2.8
 
     def __init__(self, font, text):
         """
