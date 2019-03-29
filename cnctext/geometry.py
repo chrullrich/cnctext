@@ -2,7 +2,6 @@
 
 import itertools
 import re
-from math import ceil
 
 from numpy import array
 from .fontparser import parse
@@ -189,16 +188,26 @@ class Font:
             minwidth = min([c.cellwidth for c in inst.characters.values()])
             inst.characters[32] = Character(minwidth * 2.0 / 3.0, [])
 
+        # In the default font the slash has the same width as the digits.
+        # This is ugly; resize it.
+        if (inst.characters[47].cellwidth == inst.characters[48].cellwidth):
+            inst.characters[47] = Character(*inst.characters[47].scaled(0.5, 1))
+
+        # Similarly, shorten the hyphen.
+        inst.characters[45] = Character(*inst.characters[45].scaled(0.75, 1))
+
         return inst
 
 
-def GeometryError(Exception):
+class GeometryError(Exception):
     def __init__(self, msg):
         super().__init__(msg)
 
 
 class Line:
     MIN_GAP_WIDTH = 2.0     # Currently fixed gap width
+    MAX_ASPECT_RATIO = 1.25
+    MIN_ASPECT_RATIO = 0.85
 
     def __init__(self, font, text):
         """
@@ -240,10 +249,23 @@ class Line:
         """
         x = size[0]
         if (self.has_gap()):
-            x -= Line.MIN_GAP_WIDTH
+            x -= self.gap_width
 
         sx = x / self.width()
         sy = size[1] / self.font.height
+
+        aspect = sx / sy
+
+        # if (aspect < Line.MIN_ASPECT_RATIO):
+        #    raise GeometryError("Bad aspect ratio; font too narrow.")
+
+        # If the font is getting stretched too much horizontally,
+        # limit the stretching and, if there is one, widen the gap
+        # so the result takes up the entire available width.
+        if (aspect > Line.MAX_ASPECT_RATIO):
+            sx = sy * Line.MAX_ASPECT_RATIO
+            if (self.has_gap()):
+                self.gap_width = size[0] - (self.width() * sx)
 
         return (sx, sy)
 
@@ -258,7 +280,6 @@ class Line:
                 x += cw
 
             if (self.has_gap()):
-                x += Line.MIN_GAP_WIDTH
+                x += self.gap_width
 
         return result
-
