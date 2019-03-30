@@ -12,10 +12,6 @@ CHAR_HEIGHT = 2.6
 TOTAL_WIDTH = 23.0
 
 
-def shift_point(pt, offset):
-    return round(pt[0] + offset[0], 3), round(pt[1] + offset[1], 3)
-
-
 def offset(base, points):
     return [(round(pt[0] + base[0], 3), round(pt[1] + base[1], 3))
             for pt in points]
