@@ -200,14 +200,14 @@ class Font:
 
 
 class GeometryError(Exception):
-    def __init__(self, msg):
-        super().__init__(msg)
+    def __str__(self):
+        return f"GeometryError: {self.args[0]}: \"{self.args[1]}\""
 
 
 class Line:
     MIN_GAP_WIDTH = 2.0     # Currently fixed gap width
     MAX_ASPECT_RATIO = 1.25
-    MIN_ASPECT_RATIO = 0.85
+    MIN_ASPECT_RATIO = 0.75
 
     def __init__(self, font, text):
         """
@@ -256,8 +256,8 @@ class Line:
 
         aspect = sx / sy
 
-        # if (aspect < Line.MIN_ASPECT_RATIO):
-        #    raise GeometryError("Bad aspect ratio; font too narrow.")
+        if (aspect < Line.MIN_ASPECT_RATIO):
+            raise GeometryError("Bad aspect ratio; font too narrow", "  ".join(self.parts))
 
         # If the font is getting stretched too much horizontally,
         # limit the stretching and, if there is one, widen the gap
