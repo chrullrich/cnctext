@@ -21,7 +21,7 @@ setup(
     },
     entry_points={
         "console_scripts": [
-            "cnctext = cnctext.app:main",
+            "cnctext = cnctext.app:console_entry_point",
         ],
     },
     install_requires=[

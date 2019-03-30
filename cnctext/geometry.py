@@ -241,11 +241,12 @@ class Line:
     def width(self):
         return sum((c.cellwidth for c in self.all_characters))
 
-    def scaling(self, size):
+    def scaling(self, size, disable_aspect_limit=False):
         """
         Returns the scale factors (x, y) to use for this line.
 
         :param size: Tuple (x, y) of available space in font size units.
+        :param disable_aspect_limit: Accept any aspect ratio (for double-height output)
         """
         x = size[0]
         if (self.has_gap()):
@@ -256,7 +257,7 @@ class Line:
 
         aspect = sx / sy
 
-        if (aspect < Line.MIN_ASPECT_RATIO):
+        if (not disable_aspect_limit and aspect < Line.MIN_ASPECT_RATIO):
             raise GeometryError("Bad aspect ratio; font too narrow", "  ".join(self.parts))
 
         # If the font is getting stretched too much horizontally,
