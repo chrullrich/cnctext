@@ -26,6 +26,8 @@ The generated code will produce two markers at G54 and G55 unless
 the --no-pair argument is used.
 
 Supported fonts are .chr files from http://ncplot.com/stickfont/stickfont.htm.
+
+Dimensions are for HellermannTyton cable markers IT18R (111-81821).
 """
 HELP_LINE_ARGUMENT = """
 One or two lines of input, or "-" to read from stdin (tab-separated).
