@@ -23,15 +23,23 @@ HELP_EPILOG = """
 Each text line may contain a gap, indicated by more than one space.
 Text after the gap will be right aligned.
 
-The generated code will produce two markers at G54 and G55 unless
-the --no-pair argument is used.
+Depending on the number of input lines, code for either one or two marker
+variants will be produced:
+
+|        |    | Line 1 |         |        |    | Line 3 |
+| Line 1 | or | Line 2 |   and   | Line 3 | or | Line 4 |
+
+This means that, to make two single-line markers, the first line must be empty.
+
+The generated code will place paired markers at G54/G55 and G56/G57.
+If the --no-pair argument is used, single markers will be at G54 and G55.
 
 Supported fonts are .chr files from http://ncplot.com/stickfont/stickfont.htm.
 
-Dimensions are for HellermannTyton cable markers IT18R (111-81821).
+Built-in dimensions are for HellermannTyton cable markers IT18R (111-81821).
 """
 HELP_LINE_ARGUMENT = """
-One or two lines of input, or "-" to read from stdin (tab-separated).
+One to four lines of text, or "-" to read from stdin (tab-separated).
 """
 
 
@@ -98,6 +106,10 @@ def main(options):
     else:
         lines = options.LINE
 
+    # TODO: Make better.
+    # Rearrange [1,2,3,4] to [[1,2],[3,4]].
+    # Rearrange [1,2,3] to [[1,2],[3]].
+    # Rearrange [1,2] to [[1,2]].
     if (len(lines) == 1):
         labels = [[lines[0]]]
     elif (len(lines) == 2):
