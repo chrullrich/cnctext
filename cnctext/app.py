@@ -54,6 +54,8 @@ def offset(base, points):
 
 
 def make_g_code(lines, coord_sys, double_height):
+
+    # We don't support G59.[123] for now.
     if (type(coord_sys) != int or coord_sys < 54 or coord_sys > 59):
         raise ValueError(f"Not a valid coordinate system: {coord_sys}")
 
