@@ -2,6 +2,7 @@
 
 import sys
 import os
+import itertools
 import contextlib
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 from io import StringIO, SEEK_SET
@@ -97,19 +98,32 @@ def main(options):
     else:
         lines = options.LINE
 
-    if (len(lines) > 2):
-        raise ValueError(f"Too many lines ({len(lines)} > 2)")
+    if (len(lines) == 1):
+        labels = [[lines[0]]]
+    elif (len(lines) == 2):
+        labels = [[lines[0], lines[1]]]
+    elif (len(lines) == 3):
+        labels = [[lines[0], lines[1]], [lines[2]]]
+    elif (len(lines) == 4):
+        labels = [[lines[0], lines[1]], [lines[2], lines[3]]]
+    else:
+        raise ValueError(f"Too many lines ({len(lines)} > 4)")
 
     if (options.double and len(lines) > 1):
         raise ValueError(f"Too many lines for --double mode")
 
     f = Font.load("cnctext/fonts/default.chr")
-    geom_lines = [Line(f, x) for x in lines]
+    geom_labels = [[Line(f, x) for x in lines] for lines in labels]
+
+    # This works for up to three pairs. The fourth pair must use
+    # G59.1 and G59.2, so we will need a different solution then.
+    coord_sys = itertools.count(start=54)
 
     with smart_open(options.out, "wt") as o:
-        print(make_g_code(geom_lines, 54, options.double), file=o)
-        if (options.pair):
-            print(make_g_code(geom_lines, 55, options.double), file=o)
+        for label in geom_labels:
+            print(make_g_code(label, next(coord_sys), options.double), file=o)
+            if (options.pair):
+                print(make_g_code(label, next(coord_sys), options.double), file=o)
 
 
 def console_entry_point():
