@@ -54,6 +54,9 @@ def offset(base, points):
 
 
 def make_g_code(lines, coord_sys, double_height):
+    if (type(coord_sys) != int or coord_sys < 54 or coord_sys > 59):
+        raise ValueError(f"Not a valid coordinate system: {coord_sys}")
+
     # Leave space for descenders on bottom-most line
     base_y = LINE_SPREAD
 
@@ -102,9 +105,9 @@ def main(options):
     geom_lines = [Line(f, x) for x in lines]
 
     with smart_open(options.out, "wt") as o:
-        print(make_g_code(geom_lines, "G54", options.double), file=o)
+        print(make_g_code(geom_lines, 54, options.double), file=o)
         if (options.pair):
-            print(make_g_code(geom_lines, "G55", options.double), file=o)
+            print(make_g_code(geom_lines, 55, options.double), file=o)
 
 
 def console_entry_point():
