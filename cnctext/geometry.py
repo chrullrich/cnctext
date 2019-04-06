@@ -248,6 +248,10 @@ class Line:
         :param size: Tuple (x, y) of available space in font size units.
         :param disable_aspect_limit: Accept any aspect ratio (for double-height output)
         """
+        # Empty line?
+        if (self.width() == 0.0):
+            return (1, 1)
+
         x = size[0]
         if (self.has_gap()):
             x -= self.gap_width
@@ -270,6 +274,10 @@ class Line:
         return (sx, sy)
 
     def galley(self, sx, sy):
+        # Empty line?
+        if (not self.chars):
+            return [(0.0, [])]
+
         result = []
 
         # Center single words
