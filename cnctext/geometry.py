@@ -284,7 +284,7 @@ class Line:
                 result.append((x, cs))
                 x += cw
 
-            if (self.has_gap()):
-                x += self.gap_width
+            # Leave the calculated gap; if no gap, this doesn't hurt.
+            x += self.gap_width
 
         return result
