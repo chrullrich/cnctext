@@ -122,10 +122,10 @@ def console_entry_point():
         main(p.parse_args())
         sys.exit(0)
     except GeometryError as e:
-        print(str(e))
+        print(str(e), file=sys.stderr)
         sys.exit(1)
     except ValueError as e:
-        print(str(e))
+        print(str(e), file=sys.stderr)
         sys.exit(1)
 
 
