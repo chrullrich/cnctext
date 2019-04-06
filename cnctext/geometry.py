@@ -265,14 +265,18 @@ class Line:
         # so the result takes up the entire available width.
         if (aspect > Line.MAX_ASPECT_RATIO):
             sx = sy * Line.MAX_ASPECT_RATIO
-            if (self.has_gap()):
-                self.gap_width = size[0] - (self.width() * sx)
+            self.gap_width = size[0] - (self.width() * sx)
 
         return (sx, sy)
 
     def galley(self, sx, sy):
         result = []
-        x = 0.0
+
+        # Center single words
+        if (not self.has_gap()):
+            x = self.gap_width / 2
+        else:
+            x = 0.0
 
         for p in self.chars:
             for c in p:
