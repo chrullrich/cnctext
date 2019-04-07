@@ -4,7 +4,7 @@ class GrblCodeGenerator:
 
         self.coord_sys = kwargs.get("coord_sys", 54)
         self.z_move = kwargs.get("z_move", 5.0)
-        self.z_clear = kwargs.get("z_clear", 0.15)
+        self.z_clear = kwargs.get("z_clear", 0.25)
         self.z_engrave = kwargs.get("z_engrave", -0.1)
         self.f_rapid = kwargs.get("f_rapid", 100)
         self.f_interpolate = kwargs.get("f_interpolate", 50)
