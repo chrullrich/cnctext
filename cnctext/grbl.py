@@ -2,7 +2,7 @@ class GrblCodeGenerator:
     def __init__(self, out, **kwargs):
         self.out = out
 
-        self.coord_sys = kwargs.get("coord_sys", "G54")
+        self.coord_sys = kwargs.get("coord_sys", 54)
         self.z_move = kwargs.get("z_move", 5.0)
         self.z_clear = kwargs.get("z_clear", 0.15)
         self.z_engrave = kwargs.get("z_engrave", -0.1)
@@ -48,7 +48,7 @@ class GrblCodeGenerator:
         self.o(f"G1 X{pt[0]} Y{pt[1]}" + self.f(self.f_interpolate))
 
     def start(self):
-        self.o(f"G0 {self.coord_sys}")
+        self.o(f"G0 G{self.coord_sys}")
         self.away()
         self.o(f"G0 X0 Y0" + self.f(self.f_rapid))
         self.o(f"M3 S{self.s_engrave}")
