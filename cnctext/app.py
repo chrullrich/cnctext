@@ -11,8 +11,8 @@ from .geometry import *
 from .grbl import GrblCodeGenerator
 
 
-LINE_SPREAD = 0.7
-CHAR_HEIGHT = 2.6
+LINE_SPREAD = 0.8
+CHAR_HEIGHT = 2.5
 
 TOTAL_WIDTH = 23.0
 
