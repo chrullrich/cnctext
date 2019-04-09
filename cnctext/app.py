@@ -73,7 +73,11 @@ def make_g_code(lines, coord_sys, double_height):
 
     sink = StringIO()
 
-    gen = GrblCodeGenerator(sink, coord_sys=coord_sys, z_move=6.0)
+    gen = GrblCodeGenerator(sink, 
+                            coord_sys=coord_sys,
+                            f_rapid=150,
+                            f_interpolate=150,
+                            z_move=6.0)
     gen.start()
 
     # Lines are from top to bottom
