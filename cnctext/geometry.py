@@ -269,7 +269,7 @@ class Line:
         # so the result takes up the entire available width.
         if (aspect > Line.MAX_ASPECT_RATIO):
             sx = sy * Line.MAX_ASPECT_RATIO
-            self.gap_width = size[0] - (self.width() * sx)
+        self.gap_width = size[0] - (self.width() * sx)
 
         return (sx, sy)
 
