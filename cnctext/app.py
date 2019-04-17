@@ -34,6 +34,9 @@ This means that, to make two single-line markers, the first line must be empty.
 The generated code will place paired markers at G54/G55 and G56/G57.
 If the --no-pair argument is used, single markers will be at G54 and G55.
 
+An arbitrary NC code epilog can be added to the program; separate multiple
+lines with semicolons.
+
 Supported fonts are .chr files from http://ncplot.com/stickfont/stickfont.htm.
 
 Built-in dimensions are for HellermannTyton cable markers IT18R (111-81821).
@@ -62,7 +65,7 @@ def offset(base, points):
             for pt in points]
 
 
-def make_g_code(lines, coord_sys, double_height):
+def make_g_code(lines, coord_sys, double_height, **cncopts):
 
     # We don't support G59.[123] for now.
     if (type(coord_sys) != int or coord_sys < 54 or coord_sys > 59):
@@ -73,11 +76,14 @@ def make_g_code(lines, coord_sys, double_height):
 
     sink = StringIO()
 
+    grblopts = {}
+    grblopts["f_rapid"] = cncopts.get("rapid_feed", 200)
+    grblopts["f_interpolate"] = cncopts.get("interpolate_feed", 200)
+
     gen = GrblCodeGenerator(sink, 
                             coord_sys=coord_sys,
-                            f_rapid=150,
-                            f_interpolate=150,
-                            z_move=6.0)
+                            z_move=6.0,
+                            **grblopts)
     gen.start()
 
     # Lines are from top to bottom
@@ -102,6 +108,15 @@ def make_g_code(lines, coord_sys, double_height):
 
     sink.seek(0, SEEK_SET)
     return sink.read()
+
+
+def get_cncopts(options):
+    result = {}
+    if ("rapid_feed" in options):
+        result["rapid_feed"] = options.rapid_feed
+    if ("interpolate_feed" in options):
+        result["interpolate_feed"] = options.interpolate_feed
+    return result
 
 
 def main(options):
@@ -131,15 +146,19 @@ def main(options):
     f = Font.load("cnctext/fonts/default.chr")
     geom_labels = [[Line(f, x) for x in lines] for lines in labels]
 
+    cncopts = get_cncopts(options)
+
     # This works for up to three pairs. The fourth pair must use
     # G59.1 and G59.2, so we will need a different solution then.
     coord_sys = itertools.count(start=54)
 
     with smart_open(options.out, "wt") as o:
         for label in geom_labels:
-            print(make_g_code(label, next(coord_sys), options.double), file=o)
+            print(make_g_code(label, next(coord_sys), options.double, **cncopts), file=o)
             if (options.pair):
-                print(make_g_code(label, next(coord_sys), options.double), file=o)
+                print(make_g_code(label, next(coord_sys), options.double, **cncopts), file=o)
+        if (options.epilog):
+            print(os.linesep.join(options.epilog.split(";")), file=o)
 
 
 def console_entry_point():
@@ -151,6 +170,9 @@ def console_entry_point():
     p.add_argument("--out", "-o", help="Output file name", default="-")
     p.add_argument("--font", "-f", help="Font (.chr file) to use",
                    default=os.path.join(os.path.dirname(__file__), "fonts", "default.chr"))
+    p.add_argument("--rapid-feed", "-r", help="Feed rate for rapid movements (G0)")
+    p.add_argument("--interpolate-feed", "-i", help="Feed rate for interpolation (G1)")
+    p.add_argument("--epilog", help="CNC code to append to program")
     p.add_argument("LINE", nargs="+", help=HELP_LINE_ARGUMENT)
 
     try:
