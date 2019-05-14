@@ -143,7 +143,8 @@ def main(options):
     if (options.double and len(lines) > 1):
         raise ValueError(f"Too many lines for --double mode")
 
-    f = Font.load("cnctext/fonts/default.chr")
+    fontpath = os.path.join(os.path.dirname(__file__), "fonts", "default.chr")
+    f = Font.load(fontpath)
     geom_labels = [[Line(f, x) for x in lines] for lines in labels]
 
     cncopts = get_cncopts(options)
