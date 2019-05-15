@@ -193,6 +193,11 @@ class Font:
         if (inst.characters[47].cellwidth == inst.characters[48].cellwidth):
             inst.characters[47] = Character(*inst.characters[47].scaled(0.5, 1))
 
+        # Also resize the underscore, if it is wider than the (possibly
+        # resized) slash.
+        if (inst.characters[95].cellwidth > inst.characters[47].cellwidth):
+            inst.characters[95] = Character(*inst.characters[95].scaled(0.5, 1))
+
         # Similarly, shorten the hyphen.
         inst.characters[45] = Character(*inst.characters[45].scaled(0.75, 1))
 
