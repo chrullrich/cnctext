@@ -129,7 +129,9 @@ def main(options):
     # Rearrange [1,2,3,4] to [[1,2],[3,4]].
     # Rearrange [1,2,3] to [[1,2],[3]].
     # Rearrange [1,2] to [[1,2]].
-    if (len(lines) == 1):
+    if (options.double and len(lines) == 2):
+        labels = [[lines[0]], [lines[1]]]
+    elif (len(lines) == 1):
         labels = [[lines[0]]]
     elif (len(lines) == 2):
         labels = [[lines[0], lines[1]]]
@@ -140,7 +142,7 @@ def main(options):
     else:
         raise ValueError(f"Too many lines ({len(lines)} > 4)")
 
-    if (options.double and len(lines) > 1):
+    if (options.double and len(lines) > 2):
         raise ValueError(f"Too many lines for --double mode")
 
     fontpath = os.path.join(os.path.dirname(__file__), "fonts", "default.chr")
