@@ -128,7 +128,8 @@ def main(options):
     # TODO: Make better.
     # Rearrange [1,2,3,4] to [[1,2],[3,4]].
     # Rearrange [1,2,3] to [[1,2],[3]].
-    # Rearrange [1,2] to [[1,2]].
+    # Rearrange [1,2] to [[1],[2]] if --double, otherwise
+    # rearrange [1,2] to [[1,2]].
     if (options.double and len(lines) == 2):
         labels = [[lines[0]], [lines[1]]]
     elif (len(lines) == 1):
