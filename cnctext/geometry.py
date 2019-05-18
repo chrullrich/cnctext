@@ -199,7 +199,7 @@ class Font:
             inst.characters[95] = Character(*inst.characters[95].scaled(0.5, 1))
 
         # Similarly, shorten the hyphen.
-        inst.characters[45] = Character(*inst.characters[45].scaled(0.75, 1))
+        inst.characters[45] = Character(*inst.characters[45].scaled(0.6, 1))
 
         return inst
 
