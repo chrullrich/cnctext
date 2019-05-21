@@ -13,8 +13,6 @@ class GrblCodeGenerator:
         self.is_clear = True
         self.feed = -1
 
-        self.last_pt = None
-
     def o(self, line):
         print(line, file=self.out)
 
@@ -59,7 +57,6 @@ class GrblCodeGenerator:
 
     def polyline(self, points):
         if (points):
-            if (not self.last_pt or self.last_pt != points[0]):
-                self.rapid(points[0])
+            self.rapid(points[0])
             for pt in points[1:]:
                 self.engrave(pt)
