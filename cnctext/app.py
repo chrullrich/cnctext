@@ -77,8 +77,8 @@ def make_g_code(lines, coord_sys, double_height, **cncopts):
     sink = StringIO()
 
     grblopts = {}
-    grblopts["f_rapid"] = cncopts.get("rapid_feed", 200)
-    grblopts["f_interpolate"] = cncopts.get("interpolate_feed", 200)
+    grblopts["f_rapid"] = cncopts.get("rapid_feed", 500)
+    grblopts["f_interpolate"] = cncopts.get("interpolate_feed", 500)
 
     gen = GrblCodeGenerator(sink, 
                             coord_sys=coord_sys,
