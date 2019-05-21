@@ -77,8 +77,8 @@ def make_g_code(lines, coord_sys, double_height, **cncopts):
     sink = StringIO()
 
     grblopts = {}
-    grblopts["f_rapid"] = cncopts.get("rapid_feed", 500)
-    grblopts["f_interpolate"] = cncopts.get("interpolate_feed", 500)
+    grblopts["f_rapid"] = cncopts["rapid_feed"]
+    grblopts["f_interpolate"] = cncopts["interpolate_feed"]
 
     gen = GrblCodeGenerator(sink, 
                             coord_sys=coord_sys,
@@ -108,15 +108,6 @@ def make_g_code(lines, coord_sys, double_height, **cncopts):
 
     sink.seek(0, SEEK_SET)
     return sink.read()
-
-
-def get_cncopts(options):
-    result = {}
-    if ("rapid_feed" in options):
-        result["rapid_feed"] = options.rapid_feed
-    if ("interpolate_feed" in options):
-        result["interpolate_feed"] = options.interpolate_feed
-    return result
 
 
 def main(options):
@@ -150,7 +141,7 @@ def main(options):
     f = Font.load(fontpath)
     geom_labels = [[Line(f, x) for x in lines] for lines in labels]
 
-    cncopts = get_cncopts(options)
+    cncopts = vars(options)
 
     # This works for up to three pairs. The fourth pair must use
     # G59.1 and G59.2, so we will need a different solution then.
@@ -174,8 +165,8 @@ def console_entry_point():
     p.add_argument("--out", "-o", help="Output file name", default="-")
     p.add_argument("--font", "-f", help="Font (.chr file) to use",
                    default=os.path.join(os.path.dirname(__file__), "fonts", "default.chr"))
-    p.add_argument("--rapid-feed", "-r", help="Feed rate for rapid movements (G0)")
-    p.add_argument("--interpolate-feed", "-i", help="Feed rate for interpolation (G1)")
+    p.add_argument("--rapid-feed", "-r", help="Feed rate for rapid movements (G0)", default=500)
+    p.add_argument("--interpolate-feed", "-i", help="Feed rate for interpolation (G1)", default=500)
     p.add_argument("--epilog", help="CNC code to append to program")
     p.add_argument("LINE", nargs="+", help=HELP_LINE_ARGUMENT)
 
