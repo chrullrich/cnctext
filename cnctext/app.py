@@ -145,15 +145,18 @@ def main(options):
 
     # This works for up to three pairs. The fourth pair must use
     # G59.1 and G59.2, so we will need a different solution then.
-    coord_sys = itertools.count(start=54)
+    coord_sys = iter(range(54, 60))
 
     with smart_open(options.out, "wt") as o:
-        for label in geom_labels:
-            print(make_g_code(label, next(coord_sys), options.double, **cncopts), file=o)
-            if (options.pair):
+        try:
+            for label in geom_labels:
                 print(make_g_code(label, next(coord_sys), options.double, **cncopts), file=o)
-        if (options.epilog):
-            print(os.linesep.join(options.epilog.split(";")), file=o)
+                if (options.pair):
+                    print(make_g_code(label, next(coord_sys), options.double, **cncopts), file=o)
+            if (options.epilog):
+                print(os.linesep.join(options.epilog.split(";")), file=o)
+        except StopIteration:
+            print("Too many coordinate systems in use, output ended after G59.", file=sys.stderr)
 
 
 def console_entry_point():
