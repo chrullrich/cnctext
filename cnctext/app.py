@@ -1,15 +1,13 @@
 #!/usr/bin/env python
 
-import sys
-import os
-import itertools
 import contextlib
+import os
+import sys
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 from io import StringIO, SEEK_SET
 
 from .geometry import *
 from .grbl import GrblCodeGenerator
-
 
 LINE_SPREAD = 0.8
 CHAR_HEIGHT = 2.5
