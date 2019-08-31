@@ -10,7 +10,7 @@ setup(
     author="Christian Ullrich",
     author_email="chris@chrullrich.net",
     license="CC0",  # why not?
-    url="https://bitbucket.org/chrullrich/cnctext",
+    url="https://github.com/chrullrich/cnctext",
     packages=[
         "cnctext",
     ],
