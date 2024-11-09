@@ -81,6 +81,8 @@ def make_g_code(lines, coord_sys, double_height, **cncopts):
     gen = GrblCodeGenerator(sink, 
                             coord_sys=coord_sys,
                             z_move=6.0,
+                            z_engrave=-abs(cncopts["char_depth"]),
+                            z_clear=cncopts["char_lift"],
                             **grblopts)
     gen.start()
 
@@ -166,8 +168,13 @@ def console_entry_point():
     p.add_argument("--out", "-o", help="Output file name", default="-")
     p.add_argument("--font", "-f", help="Font (.chr file) to use",
                    default=os.path.join(os.path.dirname(__file__), "fonts", "default.chr"))
-    p.add_argument("--rapid-feed", "-r", help="Feed rate for rapid movements (G0)", default=500)
-    p.add_argument("--interpolate-feed", "-i", help="Feed rate for interpolation (G1)", default=500)
+    p.add_argument("--rapid-feed", "-r", type=int, help="Feed rate for rapid movements (G0)", default=500)
+    p.add_argument("--interpolate-feed", "-i", type=int, help="Feed rate for interpolation (G1)", default=500)
+
+    # This is always used as a negative number.
+    p.add_argument("--char-depth", "-d", type=float, help="Engraving depth for characters", default=0.075)
+
+    p.add_argument("--char-lift", "-l", type=float, help="Height to lift the tool when repositioning in a character", default=1.0)
     p.add_argument("--epilog", help="CNC code to append to program")
     p.add_argument("LINE", nargs="+", help=HELP_LINE_ARGUMENT)
 
