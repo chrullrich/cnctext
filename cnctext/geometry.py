@@ -210,7 +210,7 @@ class GeometryError(Exception):
 
 
 class Line:
-    MIN_GAP_WIDTH = 2.0     # Currently fixed gap width
+    MIN_GAP_WIDTH = 1.5     # Currently fixed gap width
     MAX_ASPECT_RATIO = 1.25
     MIN_ASPECT_RATIO = 0.75
 
